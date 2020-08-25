@@ -1,13 +1,16 @@
 import React from 'react';
 import './App.css';
-import { Step } from './components/counter/Step';
+import {CounterStep} from './components/counter/CounterStep';
 import {Counter} from "./components/counter/Counter";
+import {CounterProvider} from "./components/counter/CounterProvider";
 
 function App() {
   return (
     <div className="App">
-      <Step />
-      <Counter />
+      <CounterProvider>
+        <CounterStep/>
+        <Counter/>
+      </CounterProvider>
     </div>
   );
 }

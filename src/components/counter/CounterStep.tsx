@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Step = () => {
+export const CounterStep = () => {
   // const stepSize = useSelector(state => state.stepSize, (current, prev) => current === prev)
   // const dispatch = useDispatch()
 

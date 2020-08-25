@@ -9,9 +9,11 @@ import { createStore } from "../../../a-flux";
 import { counterInitialState } from "./state";
 import { counterReducers } from "./reducers";
 
-export const counterStore = createStore(
+let count = 0;
+
+export const createCounterStore = () => createStore(
   counterInitialState,
   counterReducers,
-  'counterStore',
+  `counterStore-${++count}`,
   true,
 );
