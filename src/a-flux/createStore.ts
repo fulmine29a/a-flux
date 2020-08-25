@@ -3,6 +3,7 @@
  */
 
 import {AfluxReducers, AfluxState, Immutable} from "./types";
+import {createSubscribeNode} from "./subscribes";
 
 // список всех сторов для возможности реализации девтула
 // @ts-ignore
@@ -34,6 +35,10 @@ export function createStore<S extends AfluxState, R extends AfluxReducers<S>, Re
     но не замораживаем фактически, т.к. это повлечёт создание копии объекта в памяти, что при каждом запросе нам не нужно
   */
   const getState = () => currentState as unknown as Immutable<S>;
+
+  // создаём узел подписки
+
+  const {emit, subscribe} = createSubscribeNode();
 
   /*
     формируем преобразователи (редуцеры).
@@ -81,6 +86,8 @@ export function createStore<S extends AfluxState, R extends AfluxReducers<S>, Re
 
           if(changed){
             currentState = newState;
+
+            emit();
           }
         }]
     )
@@ -90,6 +97,7 @@ export function createStore<S extends AfluxState, R extends AfluxReducers<S>, Re
     getState,
     reducers,
     storeName,
+    subscribe,
   };
 
   if(debug){
