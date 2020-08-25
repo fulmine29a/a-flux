@@ -1,8 +1,11 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {counterStore} from "./components/counter/store";
 
 function App() {
+  counterStore.reducers.ADD_COUNTER()
+
   return (
     <div className="App">
       <header className="App-header">
