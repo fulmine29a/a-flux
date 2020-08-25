@@ -2,8 +2,9 @@
  * создание стора
  */
 
-import {AfluxReducers, AfluxState, Immutable} from "./types";
+import {AfluxReducers, AfluxState} from "./types";
 import {createSubscribeNode} from "./subscribes";
+import deepFreeze from 'deep-freeze';
 
 // список всех сторов для возможности реализации девтула
 // @ts-ignore
@@ -25,16 +26,13 @@ export function createStore<S extends AfluxState, R extends AfluxReducers<S>, Re
    - типизация у нас явная
   */
 
-  // текущее состояние стора
-  let currentState = initialState;
+  // текущее состояние стора, замораживаем, предварительно скопировав т.к. любая функция не должна неожиданно менять свои параметры
+  let currentState = deepFreeze({...initialState});
 
   /*
     получение состояния стора.
-
-    для предупреждения случайной мутации стора помечаем возврашаемое состояние в typescript как неизменяемое,
-    но не замораживаем фактически, т.к. это повлечёт создание копии объекта в памяти, что при каждом запросе нам не нужно
   */
-  const getState = () => currentState as unknown as Immutable<S>;
+  const getState = () => currentState;
 
   // создаём узел подписки
 
@@ -84,8 +82,9 @@ export function createStore<S extends AfluxState, R extends AfluxReducers<S>, Re
             )
           }
 
-          if(changed){
-            currentState = newState;
+          if(changed) {
+            //для предупреждения случайной мутации замораживаем стейт
+            currentState = deepFreeze(newState);
 
             emit();
           }

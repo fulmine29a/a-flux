@@ -7,7 +7,9 @@ export function createSubscribeNode(){
   function subscribe(cb: () => void){
     subscribers.push(cb);
 
-    return () => subscribers = subscribers.filter(subscriber => subscriber != cb);
+    return () => {
+      subscribers = subscribers.filter(subscriber => subscriber != cb)
+    };
   }
 
   function emit(){

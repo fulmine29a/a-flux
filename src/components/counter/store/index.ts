@@ -5,9 +5,9 @@
  * - когда начинаешь работать с группой компонентов приходится ещё куда-то лазить и искать стор, а так всё под рукой
  */
 
-import { createStore } from "../../../a-flux";
-import { counterInitialState } from "./state";
-import { counterReducers } from "./reducers";
+import {createStore} from "../../../a-flux";
+import {counterInitialState} from "./state";
+import {counterReducers} from "./reducers";
 
 let count = 0;
 
@@ -17,3 +17,5 @@ export const createCounterStore = () => createStore(
   `counterStore-${++count}`,
   true,
 );
+
+export type ReadOnlyCounterState = ReturnType<ReturnType<typeof createCounterStore>['getState']>

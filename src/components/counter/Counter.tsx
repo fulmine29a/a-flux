@@ -1,12 +1,14 @@
-import React, {useContext} from 'react';
-import { counterContext } from './counterContext';
+import React from 'react';
+import {useCounterContext} from './counterContext';
+import {useSelector} from "../../a-flux/useSelector";
+import {selectCounter} from "./store/selectors";
 
 export const Counter = () => {
   // const counter = useSelector(state => state.counter)
   // const dispatch = useDispatch()
-  const {store} = useContext(counterContext);
+  const {store} = useCounterContext();
 
-  const {counter} = store ? store.getState() : {counter: 0};
+  const [counter] = useSelector(store, selectCounter);
 
   return (
     <div>
