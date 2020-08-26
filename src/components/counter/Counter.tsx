@@ -1,20 +1,18 @@
 import React from 'react';
 import {useCounterContext} from './counterContext';
-import {useSelector} from "../../a-flux/useSelector";
+import {useSelector} from "../../a-flux";
 import {selectCounter} from "./store/selectors";
 
 export const Counter = () => {
-  // const counter = useSelector(state => state.counter)
-  // const dispatch = useDispatch()
   const {store} = useCounterContext();
 
-  const [counter] = useSelector(store, selectCounter);
+  const counter = useSelector(store, selectCounter);
 
   return (
     <div>
       <button onClick={() => 1}>-</button>
       <span> {counter} </span>
-      <button onClick={() => store && store.reducers.ADD_COUNTER()}>+</button>
+      <button onClick={() => store.actions.add()}>+</button>
     </div>
   )
 }
