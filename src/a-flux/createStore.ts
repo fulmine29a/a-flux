@@ -1,6 +1,7 @@
 import {AfluxActions, AfluxActionsTemplate, AfluxReducers, AfluxReducersTemplate, AfluxState} from "./types";
 import {createSubscribeNode} from "./subscribes";
 import deepFreeze from 'deep-freeze';
+import {createTaskManager} from "./tasks";
 
 // список всех сторов для возможности реализации девтула
 // @ts-ignore
@@ -39,10 +40,37 @@ export function createStore<
   */
   const getState = () => currentState;
 
-  // создаём узел подписки
+  /*
+    менеджер задач, который будем использовать для выполнения отложенной работы
 
+    высокий приоритет - действия
+    низкий - передача обновлений подписчикам
+  * */
+  const {addHighPriority, addLowPriority} = createTaskManager()
+
+  // создаём узел подписки для оповещения о обновлении стора
   const {emit, subscribe} = createSubscribeNode();
 
+  // флаг того что оповещение подписчиков о изменений стора уже в очереди
+  let emittingStoreUpdate = false;
+
+  /*
+    оповещаем подписчиков об изменении данных
+
+    оповещение выполняется отложено что бы в случае нескольких обновлений сразу, подписчики сработали только один раз.
+   */
+  const storeChanged = () => {
+    if(!emittingStoreUpdate){
+      addLowPriority(
+        () => {
+          emit();
+          emittingStoreUpdate = false;
+        }
+      );
+
+      emittingStoreUpdate = true;
+    }
+  }
   /*
     формируем преобразователи (редуцеры).
 
@@ -92,7 +120,7 @@ export function createStore<
             //для предупреждения случайной мутации замораживаем стейт
             currentState = deepFreeze(newState);
 
-            emit();
+            storeChanged();
           }
         }]
     )
@@ -107,18 +135,53 @@ export function createStore<
         /* для действии используем асинхронную функцию, тем самым код который вызвал действие сможет узнать что оно законченно */
         [actionName, async (payload?: any) => {
           if(debug){
-            console.group(`ACTION: ${actionName}, store: ${storeName || 'unknown'}`)
-            console.groupCollapsed('Вызванно из')
-            console.trace();
-            console.groupEnd();
+            console.group(`Выполнение действия: ${actionName}, store: ${storeName || 'unknown'}`)
+            console.log('payload:', payload)
           }
 
-          await action({state: currentState, reducers}, payload);
+          // кроме прочего передаём в экшн, действия "как есть" без обертки для отложенного вызова, для того что бы экшн
+          // вызывающий другой экшн отработал "внутри" вызвавшего экшена, а не ожидал очереди
+          // @ts-ignore циклическое определение типа действий, с которым ТС не справился...
+          await action({state: currentState, reducers, actions}, payload);
 
           if(debug){
             console.groupEnd()
           }
         }]
+    )
+  ) as unknown as Actions;
+
+  /*
+  * для публичных вызовов оборачиваем действия.
+  *
+  * действия вызванные публично выполняются по очереди, в порядке вызова. тем самым мы не даём нескольким действиям одного стора
+  * выполнятся параллельно ( это возможно в случае если они асинхронные ). да в некоторых кейсах это замедлит выполнение,
+  * но с другой стороны обеспечит корректность данных
+  * */
+  const publicActions = Object.fromEntries(
+    Object.entries(actions).map(
+      ([actionName, wrappedAction]) =>
+        [actionName, (payload?: any) => {
+
+          if(debug) {
+            // при выполнении действий через планировщик мы не сможем понять какой именно код вызвал действие,
+            // а эта информация иногда очень помогает при отладке. поэтому стёк вызова выводим именно тут
+            console.groupCollapsed(`Постановка в очередь действия: ${actionName}, store: ${storeName || 'unknown'} `);
+            console.log('payload:', payload);
+            console.trace();
+            console.groupEnd();
+          }
+
+          // сохраняем возможность ожидания окончания действия
+          return new Promise(
+            resolve => {
+              addHighPriority(() =>
+                wrappedAction(payload).then(resolve)
+              )
+            }
+          );
+        }
+        ]
     )
   ) as unknown as Actions;
 
@@ -133,7 +196,7 @@ export function createStore<
     getState,
     storeName,
     subscribe,
-    actions
+    actions: publicActions,
   };
 
   if(debug){

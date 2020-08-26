@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {AfluxStore} from "./types";
+import {AfluxStore} from "../a-flux/types";
 
 export function useSelector<R, T extends AfluxStore, State = ReturnType<T['getState']>>(store: T, selector: (state: State) => R): R {
   const [value, setValue] = useState(selector(store.getState() as State));

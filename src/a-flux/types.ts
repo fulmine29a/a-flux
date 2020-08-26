@@ -11,7 +11,7 @@ export interface AfluxReducersTemplate<State> {
 export type AfluxStore = ReturnType<typeof createStore>
 
 export interface AfluxActionsTemplate<State, Reducers> {
-  [k:string]: (store:{state: DeepReadonly<State>, reducers:Reducers}, payload?: any) => (void | Promise<any>)
+  [k:string]: (store:{state: DeepReadonly<State>, reducers:Reducers, actions: AfluxActions<State, Reducers, AfluxActionsTemplate<State, Reducers>>}, payload?: any) => (void | Promise<any>)
 }
 
 export type AfluxReducers<State, ReducerTemplate extends AfluxReducersTemplate<State>> = {[k in keyof ReducerTemplate]: (payload?: Parameters<ReducerTemplate[k]>[1]) => void};

@@ -1,6 +1,6 @@
 import React, {MouseEventHandler} from 'react';
 import {useCounterContext} from './counterContext';
-import {useSelector} from "../../a-flux";
+import {useSelector} from "../../a-flux-react";
 import {selectCounter} from "./store/selectors";
 
 export const Counter = () => {
