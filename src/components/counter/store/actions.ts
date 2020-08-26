@@ -21,5 +21,13 @@ export const counterActions = {
   },
   setStep({reducers}: actionStoreInfo, value: number | string) {
     reducers.SET_STEP(value);
-  }
+  },
+  async asyncAdd({reducers, actions}: actionStoreInfo) {
+    reducers.SHOW_LOADER();
+
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    await actions.add();
+
+    reducers.HIDE_LOADER();
+  },
 }

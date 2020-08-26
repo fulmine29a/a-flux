@@ -45,7 +45,7 @@ export function createStore<State extends AfluxState,
     высокий приоритет - действия
     низкий - передача обновлений подписчикам
   * */
-  const {addHighPriority, addLowPriority} = createTaskManager()
+  const {addHighPriorityTask, addLowPriorityTask} = createTaskManager()
 
   // создаём узел подписки для оповещения об обновлении стора
   const {emit, subscribe} = createSubscribeNode();
@@ -60,8 +60,12 @@ export function createStore<State extends AfluxState,
    */
   const storeChanged = () => {
     if(!emittingStoreUpdate){
-      addLowPriority(
+      addLowPriorityTask(
         () => {
+          if (debug) {
+            console.log(`Оповешение слушателей о изменений стора ${storeName}`)
+          }
+
           emit();
           emittingStoreUpdate = false;
         }
@@ -172,7 +176,7 @@ export function createStore<State extends AfluxState,
           // сохраняем возможность ожидания окончания действия
           return new Promise(
             resolve => {
-              addHighPriority(() =>
+              addHighPriorityTask(() =>
                 wrappedAction(payload).then(resolve)
               )
             }

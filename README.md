@@ -22,3 +22,5 @@
 - <[CounterProvider](src/components/counter/CounterProvider.tsx)>
 - <[CounterStep](src/components/counter/CounterStep.tsx)>
 - <[Counter](src/components/counter/Counter.tsx)>
+- <[CounterAsync](src/components/counter/CounterAsync.tsx)>
+- <[CounterMany](src/components/counter/CounterMany.tsx)>
