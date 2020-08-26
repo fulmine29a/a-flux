@@ -10,13 +10,12 @@ global.storeList = [];
 /***
  * создание стора
  */
-export function createStore<
-    State extends AfluxState,
-    ReducerTemplate extends AfluxReducersTemplate<State>,
-    ActionTemplate extends AfluxActionsTemplate<State, Reducers>,
-    Reducers = AfluxReducers<State, ReducerTemplate>,
-    Actions = AfluxActions<State, Reducers, ActionTemplate>,
-  >(initialState: State, reducersTemplate: ReducerTemplate, actionsTemplate: ActionTemplate, storeName = '', debug = false) {
+export function createStore<State extends AfluxState,
+  ReducerTemplate extends AfluxReducersTemplate<State>,
+  ActionTemplate extends AfluxActionsTemplate<State, Reducers, ActionTemplate>,
+  Reducers = AfluxReducers<State, ReducerTemplate>,
+  Actions = AfluxActions<State, Reducers, ActionTemplate>,
+  >(initialState: State, reducersTemplate: ReducerTemplate, actionsTemplate: ActionTemplate, storeName: string = '', debug: boolean = false) {
   /*
    начальное состояние инициализируем тут, а не прогоняя редуцер впустую.
 
@@ -48,7 +47,7 @@ export function createStore<
   * */
   const {addHighPriority, addLowPriority} = createTaskManager()
 
-  // создаём узел подписки для оповещения о обновлении стора
+  // создаём узел подписки для оповещения об обновлении стора
   const {emit, subscribe} = createSubscribeNode();
 
   // флаг того что оповещение подписчиков о изменений стора уже в очереди
@@ -109,8 +108,8 @@ export function createStore<
                 TYPE: type,
                 PAYLOAD: payload,
                 changed,
-                new: newState,
                 old: currentState,
+                new: newState,
               },
             )
           }
@@ -127,7 +126,7 @@ export function createStore<
   ) as unknown as Reducers;
 
   /*
-    действия, сразу с поддержкой асинхроности и получением стейта. редуцеры получают как параметры
+    действия, сразу с поддержкой асинхроности и получением стейта. редуцеры и действия получают как параметры
   */
   const actions = Object.fromEntries(
     Object.entries(actionsTemplate).map(
@@ -135,8 +134,7 @@ export function createStore<
         /* для действии используем асинхронную функцию, тем самым код который вызвал действие сможет узнать что оно законченно */
         [actionName, async (payload?: any) => {
           if(debug){
-            console.group(`Выполнение действия: ${actionName}, store: ${storeName || 'unknown'}`)
-            console.log('payload:', payload)
+            console.group(`Выполнение действия: ${actionName}, store: ${storeName || 'unknown'}`, 'payload:', payload)
           }
 
           // кроме прочего передаём в экшн, действия "как есть" без обертки для отложенного вызова, для того что бы экшн
@@ -164,10 +162,9 @@ export function createStore<
         [actionName, (payload?: any) => {
 
           if(debug) {
+            console.groupCollapsed(`Постановка в очередь действия: ${actionName}, store: ${storeName || 'unknown'} `, 'payload:', payload);
             // при выполнении действий через планировщик мы не сможем понять какой именно код вызвал действие,
             // а эта информация иногда очень помогает при отладке. поэтому стёк вызова выводим именно тут
-            console.groupCollapsed(`Постановка в очередь действия: ${actionName}, store: ${storeName || 'unknown'} `);
-            console.log('payload:', payload);
             console.trace();
             console.groupEnd();
           }
@@ -191,6 +188,8 @@ export function createStore<
     умышленно скрыты редуцеры. доступ к ним возможен только из действии. да обязательность написания действии кажется
     лишней писаниной, но лишь до того момента когда выясняется что на какое-то изменение надо ещё что-то прикрутить
     и начинается беготня по коду задним числом что бы заменить всё на действие.
+
+    так же, если открыть редуцеры. их вызов может произойти посреди асинхронного действия, что даёт вероятность ошибки.
   * */
   const store = {
     getState,

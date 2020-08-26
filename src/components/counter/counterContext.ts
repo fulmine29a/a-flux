@@ -1,7 +1,7 @@
 import React, {useContext} from "react";
 import {createCounterStore} from "./store";
 
-type counterContextData = {
+export type counterContextData = {
   store: ReturnType<typeof createCounterStore>
 } | null
 
