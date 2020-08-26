@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {MouseEventHandler} from 'react';
 import {useCounterContext} from './counterContext';
 import {useSelector} from "../../a-flux";
 import {selectCounter} from "./store/selectors";
@@ -10,9 +10,9 @@ export const Counter = () => {
 
   return (
     <div>
-      <button onClick={() => 1}>-</button>
+      <button onClick={store.actions.dec as unknown as MouseEventHandler}>-</button>
       <span> {counter} </span>
-      <button onClick={() => store.actions.add()}>+</button>
+      <button onClick={store.actions.add as unknown as MouseEventHandler}>+</button>
     </div>
   )
 }
