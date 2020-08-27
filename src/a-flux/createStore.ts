@@ -144,11 +144,13 @@ export function createStore<State extends AfluxState,
           // кроме прочего передаём в экшн, действия "как есть" без обертки для отложенного вызова, для того что бы экшн
           // вызывающий другой экшн отработал "внутри" вызвавшего экшена, а не ожидал очереди
           // @ts-ignore циклическое определение типа действий, с которым ТС не справился...
-          await action({state: currentState, reducers, actions}, payload);
+          const res = await action({state: currentState, reducers, actions}, payload);
 
-          if(debug){
+          if (debug) {
             console.groupEnd()
           }
+
+          return res;
         }]
     )
   ) as unknown as Actions;
@@ -175,9 +177,9 @@ export function createStore<State extends AfluxState,
 
           // сохраняем возможность ожидания окончания действия
           return new Promise(
-            resolve => {
+            (resolve, reject) => {
               addHighPriorityTask(() =>
-                wrappedAction(payload).then(resolve)
+                wrappedAction(payload).then(resolve, reject)
               )
             }
           );

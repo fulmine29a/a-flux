@@ -29,5 +29,5 @@ export const counterActions = {
     await actions.add();
 
     reducers.HIDE_LOADER();
-  },
+  }
 }
