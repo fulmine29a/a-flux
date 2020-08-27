@@ -3,104 +3,86 @@
  *
  * имеет две очереди, с высоким приоритетом и низким
  * */
-export function createTaskManager() {
+export function createTaskManager(MAX_FPS = 50) {
   let lowPriority: Function[] = [];
-  let highPriority: Function[] = [];
+  let highPriority: (() => Promise<void>)[] = [];
 
-  function addHighPriorityTask(task: Function) {
-    highPriority.push(task);
-  }
+  let lowPriorityTime = performance.now()
 
   function addLowPriorityTask(task: Function) {
+    if (!lowPriority.length) {
+      lowPriorityTime = performance.now()
+    }
+
     lowPriority.push(task);
   }
 
-  // таймер в котором исполняются задачи
-  let timerId: ReturnType<typeof setTimeout>;
+  let highPriorityStarted = false;
+  let highPriorityPacketExecutionStart = performance.now();
 
-  // флаг ожидание завершения асинхронной задачи с низким приоритетом
-  let highPriorityTaskInProgress = false;
-  let highPriorityTaskCycles = 0;
+  // выполнение высокоприоритетной задачи из очереди
+  function executeHighPriority() {
+    // выполнение происходит в микротасках с высоким приоритетом и если
+    // его не прерывать - всё будет выглядеть зависшим. поэтому прерываем выполнение если оно длится слишком долго
+    if (performance.now() - highPriorityPacketExecutionStart < (1000 / MAX_FPS)) {
+      const task = highPriority.shift();
 
-  // действия при старте асинхронной задачи с высоким приоритетом
-  function highPriorityTaskStart() {
-    highPriorityTaskInProgress = true;
-    highPriorityTaskCycles = 0;
-  }
-
-  // действия при завершении асинхронной задачи с высоким приоритетом
-  function highPriorityTaskEnd() {
-    highPriorityTaskInProgress = false;
-  }
-
-  let lowPriorityWaitCount = 0;
-
-  // запуск низкоприоритетной задачи
-  function runLowPriorityTask() {
-    lowPriorityWaitCount = 0;
-
-    const task = lowPriority.shift();
-    if (task) {
-      task();
+      if (task) {
+        task().then(
+          executeHighPriority,
+          executeHighPriority,
+        )
+      } else {
+        highPriorityStarted = false;
+      }
+    } else {
+      setTimeout(
+        () => {
+          highPriorityPacketExecutionStart = performance.now();
+          executeHighPriority();
+        },
+        0
+      )
     }
   }
 
-  function executeTasks() {
+  function addHighPriorityTask(task: () => Promise<void>) {
+    highPriority.push(task);
+
+    if (!highPriorityStarted) {
+      highPriorityStarted = true;
+
+      //для единообразного выполнения откладываем запуск в микротаски
+      new Promise(resolve => resolve()).then(
+        () => {
+          highPriorityPacketExecutionStart = performance.now();
+          executeHighPriority();
+        }
+      )
+    }
+  }
+
+  // таймер в котором исполняются низкоприоритетные задачи
+  let timerId: ReturnType<typeof setTimeout>;
+
+  // выполнение низкоприоритетных задач по таймеру
+  function executeLowPriority() {
     try {
-      // если ждём завершения асинхронной высокоприоритетной задачи
-      if (highPriorityTaskInProgress) {
-
-        // если приоритетная задача выполняется долго, пропускаем низкоприоритетную
-        if (++highPriorityTaskCycles > 3) {
-          runLowPriorityTask();
-          highPriorityTaskCycles = 0;
-        }
-      } else {
-        // если слишком долго не выполняли задачи с низким приоритетом
-        if (lowPriorityWaitCount > 30) {
-          runLowPriorityTask();
-        }
-
-        //если есть задачи с высоким приоритетом
-        if (highPriority.length) {
-          for (let i = 0; i < 5; i++) {
-            let task = highPriority.shift();
-
-            if (task) {
-              lowPriorityWaitCount++;
-
-              const taskResult = task();
-
-              // если выполняем асинхронную функцию
-              if (taskResult.then && typeof taskResult.then === "function") {
-                highPriorityTaskStart();
-
-                taskResult.then(
-                  highPriorityTaskEnd,
-                  highPriorityTaskEnd
-                )
-
-                break;
-              }
-            } else {
-              runLowPriorityTask();
-              break
-            }
-          }
-        } else {
-          runLowPriorityTask();
-        }
+      if (lowPriority.length && ((performance.now() - lowPriorityTime) > (1000 / MAX_FPS))) {
+        const task = lowPriority.shift() as Function;
+        task();
+        lowPriorityTime = performance.now()
       }
     } finally {
       timerId = setTimeout(
-        executeTasks,
+        executeLowPriority,
         0
       )
     }
   }
 
   timerId = setTimeout(
-    executeTasks,
+    executeLowPriority,
     0
   )
 
