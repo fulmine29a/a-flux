@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {useCounterContext} from './counterContext';
-import {useSelector} from "../../a-flux-react";
+import {useSelector} from "../../../../a-flux-react";
 import {selectCounter} from "./store/selectors";
 
 export const Counter = () => {

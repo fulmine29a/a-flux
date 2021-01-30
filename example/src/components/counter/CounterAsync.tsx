@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {useSelector} from "../../a-flux-react";
+import {useSelector} from "../../../../a-flux-react";
 import {selectLoad} from "./store/selectors";
 import {useCounterContext} from "./counterContext";
 

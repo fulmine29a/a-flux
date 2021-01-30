@@ -5,7 +5,7 @@
  * - когда начинаешь работать с группой компонентов приходится ещё куда-то лазить и искать стор, а так всё под рукой
  */
 
-import {AfluxActions, AfluxReducers, createStore} from "../../../a-flux";
+import {AfluxActions, AfluxReducers, createStore} from "../../../../../a-flux";
 import {counterInitialState, CounterState} from "./state";
 import {counterReducers} from "./reducers";
 import {counterActions} from "./actions";

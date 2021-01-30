@@ -7,20 +7,22 @@
 ### Меню
 
 ##### библиотека стора
-- [Реализация стора](src/a-flux/createStore.ts)
-- [Работа с подписчиками](src/a-flux/subscribes.ts)
-- [Очередь отложенный заданий](src/a-flux/tasks.ts)
-- [Реализация useSelector](src/a-flux-react/useSelector.ts)
+- [Реализация стора](a-flux/createStore.ts)
+- [Работа с подписчиками](a-flux/subscribes.ts)
+- [Очередь отложенный заданий](a-flux/tasks.ts)
+- [Реализация useSelector](a-flux-react/useSelector.ts)
 
 ##### реализация стора в приложении
-- [Пример стора](src/components/counter/store/index.ts)
-- [Пример редуцеров](src/components/counter/store/reducers.ts)
-- [Пример действий](src/components/counter/store/actions.ts)
+
+- [Пример стора](example/src/components/counter/store/index.ts)
+- [Пример редуцеров](example/src/components/counter/store/reducers.ts)
+- [Пример действий](example/src/components/counter/store/actions.ts)
 
 ##### визуальные компоненты приложения
-- [Компонент использующий счётчик (приложение)](src/App.tsx)
-- <[CounterProvider](src/components/counter/CounterProvider.tsx)>
-- <[CounterStep](src/components/counter/CounterStep.tsx)>
-- <[Counter](src/components/counter/Counter.tsx)>
-- <[CounterAsync](src/components/counter/CounterAsync.tsx)>
-- <[CounterMany](src/components/counter/CounterMany.tsx)>
+
+- [Компонент использующий счётчик (приложение)](example/src/App.tsx)
+- <[CounterProvider](example/src/components/counter/CounterProvider.tsx)>
+- <[CounterStep](example/src/components/counter/CounterStep.tsx)>
+- <[Counter](example/src/components/counter/Counter.tsx)>
+- <[CounterAsync](example/src/components/counter/CounterAsync.tsx)>
+- <[CounterMany](example/src/components/counter/CounterMany.tsx)>
