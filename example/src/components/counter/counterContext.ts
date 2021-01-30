@@ -1,5 +1,5 @@
-import React, {useContext} from "react";
-import {createCounterStore} from "./store";
+import React, { useContext } from 'react';
+import { createCounterStore } from './store';
 
 export type counterContextData = {
   store: ReturnType<typeof createCounterStore>
@@ -11,8 +11,8 @@ export const useCounterContext = () => {
   const context = useContext(counterContext);
 
   if (!context) {
-    throw new Error("компоненты использующие контекст счётчика должна быть обёрнуты в соответствующий провайдер");
+    throw new Error('компоненты использующие контекст счётчика должна быть обёрнуты в соответствующий провайдер');
   }
 
   return context;
-}
+};

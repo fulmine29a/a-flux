@@ -1,5 +1,5 @@
-import React, {useCallback} from 'react';
-import {useCounterContext} from "./counterContext";
+import React, { useCallback } from 'react';
+import { useCounterContext } from './counterContext';
 
 /*
 * проверка работы на большом количестве действий
@@ -8,7 +8,7 @@ import {useCounterContext} from "./counterContext";
 * лучше либо закрыть консоль либо убрать отладку.
 * */
 export const CounterMany = () => {
-  const {store} = useCounterContext();
+  const { store } = useCounterContext();
 
   const execute = useCallback(
     () => {
@@ -17,7 +17,7 @@ export const CounterMany = () => {
       }
     },
     [store]
-  )
+  );
 
-  return <button onClick={execute}>Бахнуть много экшенов!!!</button>
-}
+  return <button onClick={execute}>Бахнуть много экшенов!!!</button>;
+};

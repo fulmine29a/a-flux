@@ -1,7 +1,7 @@
-import React, {useCallback} from 'react';
-import {useSelector} from "../../../../a-flux-react";
-import {selectLoad} from "./store/selectors";
-import {useCounterContext} from "./counterContext";
+import React, { useCallback } from 'react';
+import { useSelector } from 'a-flux-react';
+import { selectLoad } from './store/selectors';
+import { useCounterContext } from './counterContext';
 
 /*
 * Проверка работы асинхронного экшена, и возможности показа лоадера во время него
@@ -12,18 +12,20 @@ import {useCounterContext} from "./counterContext";
 * на время загрузки буду заблокированы. тут они оставлены работающими специально для проверки очереди
 * */
 export const CounterAsync = () => {
-  const {store} = useCounterContext();
+  const { store } = useCounterContext();
   const load = useSelector(store, selectLoad);
 
   const asyncAdd = useCallback(
     () => {
-      store.actions.asyncAdd()
+      store.actions.asyncAdd();
     },
     [store]
-  )
+  );
 
-  return <div>
-    <p>{load ? 'loading' : 'ready'}</p>
-    <button onClick={asyncAdd}>Асинхронное добавление</button>
-  </div>
-}
+  return (
+    <div>
+      <p>{load ? 'loading' : 'ready'}</p>
+      <button onClick={asyncAdd}>Асинхронное добавление</button>
+    </div>
+  );
+};

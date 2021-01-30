@@ -1,17 +1,15 @@
-import React, {useCallback} from 'react';
-import {useCounterContext} from "./counterContext";
-import {useSelector} from "../../../../a-flux-react";
-import {selectStep} from "./store/selectors";
+import React, { useCallback } from 'react';
+import { useCounterContext } from './counterContext';
+import { useSelector } from 'a-flux-react';
+import { selectStep } from './store/selectors';
 
 export const CounterStep = () => {
-
-  const {store} = useCounterContext();
-
+  const { store } = useCounterContext();
   const stepSize = useSelector(store, selectStep);
 
   const onChange = useCallback(
-    ({target}) => {
-      store.actions.setStep(target.value)
+    ({ target }) => {
+      store.actions.setStep(target.value);
     },
     [store]
   );
@@ -28,5 +26,5 @@ export const CounterStep = () => {
         onChange={onChange}
       />
     </div>
-  )
-}
+  );
+};

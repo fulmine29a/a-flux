@@ -1,6 +1,6 @@
-import React, {ReactNode, useState} from 'react';
-import {counterContext} from './counterContext';
-import {createCounterStore} from "./store";
+import React, { ReactNode, useState } from 'react';
+import { counterContext } from './counterContext';
+import { createCounterStore } from './store';
 
 /*
 * обертка для хранения контекста,
@@ -19,10 +19,10 @@ import {createCounterStore} from "./store";
 * проблема не решена т.к. при разработке зомби-стор не мешает, при сборке в режиме прода всё идёт нормально и создаётся
 * один стор как и нужно
 * */
-export function CounterProvider({children}: { children: ReactNode }) {
-  const [contextData] = useState(() => ({store: createCounterStore()}));
+export function CounterProvider ({ children }: { children: ReactNode }) {
+  const [contextData] = useState(() => ({ store: createCounterStore() }));
 
   return <counterContext.Provider value={contextData}>
     {children}
-  </counterContext.Provider>
+  </counterContext.Provider>;
 }
